@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+  <head>
+    <meta charset="utf-8">
+    <title>Barebones Wasm HTMX Expression</title>
+  </head>
+ <body>
+    <input type="text" id="expressionInput" hx-post="/calculate" hx-trigger="change" hx-target="#result">
+    <div id="result"></div>
+    <script type="module">
+        import * as wasm from './index.js';
+        document.body.addEventListener('htmx:beforeRequest', function (event) {
+          if (event.detail.pathInfo.requestPath === '/calculate') {
+              event.preventDefault();
+              const source = event.target || event.srcElement;
+              const target = document.querySelector(source.getAttribute('hx-target'));
+              let expression =source.value;// document.getElementById('expressionInput').value;
+                const expr = expression;
+                wasm.wasmReady.then(() => {
+                    let result;
+                    try {
+                        result = wasm.expr_eval(expr);
+                        result = result.toString();
+                    } catch (error) {
+                        result = "Error: " + error.message;
+                    }
+                    target.innerHTML = result;
+                });
+          }
+        });
+    </script>
+</body>
+</html>
+
+
+
