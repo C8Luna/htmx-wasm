@@ -40,6 +40,16 @@ or use both. The idea is not caring from the UI what is serving the response, yo
 can decide later to do this on the server or even use the server until the wasm is 
 initialized
 
+Here we have an element that is marked up with HTMX to request a calculate endpoint and putting the 
+result of the calculation in the target
+```html
+<input type="text" id="expressionInput" hx-post="/calculate" hx-trigger="change" hx-target="#result">
+<div id="result"></div>
+```
+
+This is just capturing the event and processing it locally rather than sending to the server.
+I might create a router component and HTMX plugin to contol the client vs server-side dispatch
+
 ```js
 <script type="module">
         import * as wasm from './index.js';
