@@ -1,8 +1,6 @@
-import init, {  expr_eval } from './wasm/htmx_wasm.js'; 
+import init, {  expr_eval,gen_list } from './wasm/htmx_wasm.js'; 
 
-export const wasmReady = (
-  async () => { 
-    await init();})
-();
-
-export { expr_eval };
+export const isReady = (async () => {
+  await init();
+})();
+export { expr_eval,gen_list }

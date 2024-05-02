@@ -6,29 +6,53 @@
     <title>Barebones Wasm HTMX Expression</title>
   </head>
  <body>
-    <input type="text" id="expressionInput" hx-post="/calculate" hx-trigger="change" hx-target="#result">
+    <input type="text" id="expressionInput" hx-wasm  hx-post="/calculate" hx-trigger="change" hx-target="#result">
     <div id="result"></div>
+    <div id="shopping-list" hx-wasm hx-get="/shopping-list" hx-trigger="load" />
+
     <script type="module">
         import * as wasm from './index.js';
-        document.body.addEventListener('htmx:beforeRequest', function (event) {
-          if (event.detail.pathInfo.requestPath === '/calculate') {
-              event.preventDefault();
-              const source = event.target || event.srcElement;
-              const target = document.querySelector(source.getAttribute('hx-target'));
-              let expression =source.value;// document.getElementById('expressionInput').value;
-                const expr = expression;
-                wasm.wasmReady.then(() => {
-                    let result;
-                    try {
-                        result = wasm.expr_eval(expr);
-                        result = result.toString();
-                    } catch (error) {
-                        result = "Error: " + error.message;
-                    }
-                    target.innerHTML = result;
-                });
-          }
+
+        handleLocal();
+        wasm.isReady.then(() => {
+            console.log("Wasm ready");
         });
+
+        function shoppingList(){
+            let res=wasm.isReady.then(() => {
+              let shoppingListHtml=wasm.gen_list();
+              return shoppingListHtml;
+            });
+            return res;
+        }
+
+        function calculate(expr){
+          return wasm.isReady.then(() => {
+            let result;
+            try {
+              result = wasm.expr_eval(expr);
+              result = result.toString();
+            } catch (error) {
+              result = "Error: " + error.message;
+            }
+            return result;
+          });
+        }
+   
+        function handleLocal(){
+          document.body.addEventListener('htmx:beforeRequest', function (event) {
+            const source = event.target || event.srcElement;
+            const hxwasm = source.getAttribute('hx-wasm');
+            if (hxwasm!=null){
+              const target = document.querySelector(source.getAttribute('hx-target'))||source;
+              event.preventDefault();
+              let v=source.value;
+              let fn=event.detail.pathInfo.requestPath.replace('/','').replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+              eval(`${fn}('${v}')`).then((r)=>{target.innerHTML=r;});
+              return;
+            }
+          });
+        };
     </script>
 </body>
 </html>
