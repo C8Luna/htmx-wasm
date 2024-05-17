@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
   <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+  <script src="https://unpkg.com/htmx-ext-debug@2.0.0/debug.js"></script>
   <head>
     <meta charset="utf-8">
     <title>Barebones Wasm HTMX Expression</title>
   </head>
- <body>
+ <body>  
+    <!-- hx-ext="debug"  -->
     <input type="text" id="expressionInput" hx-wasm  hx-post="/calculate" hx-trigger="change" hx-target="#result">
     <div id="result"></div>
     <div id="shopping-list" hx-wasm hx-get="/shopping-list" hx-trigger="load" />
@@ -35,20 +37,47 @@
             } catch (error) {
               result = "Error: " + error.message;
             }
-            return result;
+            return  `<div>${result}</div>`;
           });
         }
    
+        function replaceContent(response, target, source) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(response, 'text/html');
+
+            const targetElement = typeof target === 'string' ? document.querySelector(target) : target;// || console.error('Target element not found');
+            if (!targetElement) {
+                console.error('Target element not found');
+                return;
+            }
+
+            let sourceElement  = typeof source === 'string' ? doc.querySelector(source) : doc.body.firstChild || console.error('Source element not found') ;  //doc.querySelector(`#${sourceId}`);//document.getElementById(sourceId);
+            if (!sourceElement) {
+              return; 
+            }
+
+            const clonedElement = sourceElement.cloneNode(true);
+
+            targetElement.innerHTML = '';
+            targetElement.appendChild(clonedElement);
+            htmx.process(targetElement);
+                    
+        }
+
+// Example usage of the function
+// replaceContent('<html><body><div id="target">New Content</div></body></html>', 'target', 'source');
         function handleLocal(){
           document.body.addEventListener('htmx:beforeRequest', function (event) {
             const source = event.target || event.srcElement;
             const hxwasm = source.getAttribute('hx-wasm');
             if (hxwasm!=null){
               const target = document.querySelector(source.getAttribute('hx-target'))||source;
+              const select = document.querySelector(source.getAttribute('hx-select'));
               event.preventDefault();
               let v=source.value;
               let fn=event.detail.pathInfo.requestPath.replace('/','').replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
-              eval(`${fn}('${v}')`).then((r)=>{target.innerHTML=r;});
+              eval(`${fn}('${v}')`).then((r)=>{replaceContent(r,target,select);});
+              // eval(`${fn}('${v}')`).then((r)=>{target.innerHTML=r;});
               return;
             }
           });
