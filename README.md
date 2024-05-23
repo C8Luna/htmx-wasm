@@ -1,4 +1,8 @@
 # HTMX-WASM
+**NOTE: Much of below has been changed to allow for a service worker to handle the WASM dispatch since HTMX doesn allow for me to
+be able to replace the xhr with request->process->response from WASM. It could be abstracted in the HTMX.js but never seemed 
+to get any traction in asking those questions. This is the problem with all frameworks, any deviation from norm equals a ton 
+of work arounds. I started to replicate but it was too much when I could easily create exactly what I wanted in plain JS**
 
 HTMX-WASM is an example programn of using HTMX with WebAssembly.
 Wasm-bindgen is used to generate the bindings between Rust and JavaScript.
@@ -8,10 +12,6 @@ The results are then sent back to the client using HTMX.
 This example uses the [EvalExpr](https://crates.io/crates/evalexpr) crate to perform the calculation.
 It can be anything in your WASM.  
 
-**NOTE: Much of below has bee changed to allow for a service worker to handle the WASM dispatch since HTMX doesn allow for me to
-be able to replace the xhr with request->process->response from WASM. It could be abstracted in the HTMX.js but never seemed 
-to get any traction in asking those questions. This is the problem with all frameworks, any deviation from norm equals a ton 
-of work arounds. I started to replicate but it was too much when I could easily create exactly what I wanted in plain JS**
 
 
 ## Running the example
