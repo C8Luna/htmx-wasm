@@ -10,27 +10,6 @@
 
     <script >
 
-        function findEventListeners(eventType) {
-          const allElements = document.querySelectorAll('*');
-          const elementsWithListeners = [];
-
-          allElements.forEach(element => {
-            const listeners = getEventListeners(element)[eventType];
-            if (listeners && listeners.length > 0) {
-              elementsWithListeners.push({
-                element: element,
-                listeners: listeners
-              });
-            }
-          });
-
-          return elementsWithListeners;
-        }
-        function dispatchHtmxEvent(eventName, detail = {}) {
-          const event = new CustomEvent(eventName, { detail, bubbles: true });
-          document.body.dispatchEvent(event);
-        }
-
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/service-worker.js',{type:'module'})
             .then(registration => {
@@ -39,12 +18,9 @@
                   resolve(navigator.serviceWorker.ready);
                 }, 100); 
               });
-              // console.log('Service Worker registered with scope:', registration.scope);
-              // return navigator.serviceWorker.ready;
             })
             .then(() => {
               console.log('Service Worker is ready after delay.');
-
               htmx.trigger('#app', 'wasm:ready');
               // initializeApp();
             })
@@ -53,115 +29,9 @@
             });
         }
 
-        // if ('serviceWorker' in navigator) {
-        //   navigator.serviceWorker.register('service-worker.js',{type:'module'}).then(registration => {
-        //         console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        //         htmx.trigger('#app', 'wasm:ready');
-        //
-        //         // const elementsWithListeners = findEventListeners('wasm:ready');
-        //         // elementsWithListeners.forEach(({ element }) => {
-        //         //   // element.setAttribute('hx-trigger', 'wasm:ready');
-        //         //   htmx.trigger(element, 'wasm:ready');
-        //         //
-        //         // });
-        //         // dispatchHtmxEvent('wasm:ready', { registration });
-        //     }).catch(error => {
-        //         console.error('ServiceWorker registration failed: ', error);
-        //     });
-        // }
     </script>
-    
-
     <div id='app' hx-get="/app" hx-trigger="wasm:ready"></div>
 
-
-    <!-- hx-ext="debug"  --> 
-    <!---->
-    <!-- <form> -->
-    <!--     <input type="text" id="expressionInput" name="expression" -->
-    <!--            hx-post="/calculate"  -->
-    <!--            hx-trigger="change" -->
-    <!--            hx-target="#result"> -->
-    <!-- </form> -->
-    <!-- <div id="result"></div> -->
-    <!-- <div id="shopping-list" hx-get="/shopping-list" hx-trigger="wasm:ready" /> -->
-    <!---->
-
-
-    <!-- <input type="text" id="expressionInput" hx-post="/calculate" hx-trigger="change" hx-target="#result"> -->
-    <!-- <div id="shopping-list" hx-get="/shopping-list" hx-trigger="load delay:0.25s" /> -->
-<!---->
-<!--     <script type="module"> -->
-<!--         import * as wasm from './index.js'; -->
-<!---->
-<!--         handleLocal(); -->
-<!--         wasm.isReady.then(() => { -->
-<!--             console.log("Wasm ready"); -->
-<!--         }); -->
-<!---->
-<!--         function shoppingList(){ -->
-<!--             let res=wasm.isReady.then(() => { -->
-<!--               let shoppingListHtml=wasm.gen_list(); -->
-<!--               return shoppingListHtml; -->
-<!--             }); -->
-<!--             return res; -->
-<!--         } -->
-<!---->
-<!--         function calculate(expr){ -->
-<!--           return wasm.isReady.then(() => { -->
-<!--             let result; -->
-<!--             try { -->
-<!--               result = wasm.expr_eval(expr); -->
-<!--               result = result.toString(); -->
-<!--             } catch (error) { -->
-<!--               result = "Error: " + error.message; -->
-<!--             } -->
-<!--             return  `<div>${result}</div>`; -->
-<!--           }); -->
-<!--         } -->
-<!-- <!----> 
-<!--         function replaceContent(response, target, source) { -->
-<!--             const parser = new DOMParser(); -->
-<!--             const doc = parser.parseFromString(response, 'text/html'); -->
-<!---->
-<!--             const targetElement = typeof target === 'string' ? document.querySelector(target) : target;// || console.error('Target element not found'); -->
-<!--             if (!targetElement) { -->
-<!--                 console.error('Target element not found'); -->
-<!--                 return; -->
-<!--             } -->
-<!---->
-<!--             let sourceElement  = typeof source === 'string' ? doc.querySelector(source) : doc.body.firstChild || console.error('Source element not found') ;  //doc.querySelector(`#${sourceId}`);//document.getElementById(sourceId); -->
-<!--             if (!sourceElement) { -->
-<!--               return;  -->
-<!--             } -->
-<!---->
-<!--             const clonedElement = sourceElement.cloneNode(true); -->
-<!---->
-<!--             targetElement.innerHTML = ''; -->
-<!--             targetElement.appendChild(clonedElement); -->
-<!--             htmx.process(targetElement); -->
-<!---->
-<!--         } -->
-<!---->
-<!-- // Example usage of the function -->
-<!-- // replaceContent('<html><body><div id="target">New Content</div></body></html>', 'target', 'source'); -->
-<!--         function handleLocal(){ -->
-<!--           document.body.addEventListener('htmx:beforeRequest', function (event) { -->
-<!--             const source = event.target || event.srcElement; -->
-<!--             const hxwasm = source.getAttribute('hx-wasm'); -->
-<!--             if (hxwasm!=null){ -->
-<!--               const target = document.querySelector(source.getAttribute('hx-target'))||source; -->
-<!--               const select = document.querySelector(source.getAttribute('hx-select')); -->
-<!--               event.preventDefault(); -->
-<!--               let v=source.value; -->
-<!--               let fn=event.detail.pathInfo.requestPath.replace('/','').replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); }); -->
-<!--               eval(`${fn}('${v}')`).then((r)=>{replaceContent(r,target,select);}); -->
-<!--               // eval(`${fn}('${v}')`).then((r)=>{target.innerHTML=r;}); -->
-<!--               return; -->
-<!--             } -->
-<!--           }); -->
-<!--         }; -->
-<!--     </script> -->
 </body>
 </html>
 
